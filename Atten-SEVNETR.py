@@ -23,7 +23,6 @@ class SELayer(nn.Module):
         )
 
     def forward(self, x):
-        # print(x.size)
         b, c, _, _ ,_= x.size()
         y = self.avg_pool(x).view(b, c)
         y = self.fc(y).view(b, c, 1, 1,1)
@@ -116,7 +115,6 @@ class conv3d_x1(nn.Module):
         super(conv3d_x1, self).__init__()
         self.conv_1 = conv3d(in_channels, out_channels)
         self.skip_connection=nn.Conv3d(in_channels,out_channels,1)
-        # print(self.skip_connection.shape)
 
     def forward(self, x):
         z_1 = self.conv_1(x)
@@ -143,7 +141,6 @@ class deconv3d_x3(nn.Module):
     def forward(self, lhs, rhs):
         rhs_up = self.up(rhs)
         lhs_conv = self.lhs_conv(lhs)
-        # print(lhs_conv.shape)
         lhs_conv = self.SE4(lhs_conv)
         attn = self.Att4(g=rhs_up, x=lhs_conv)
         rhs_add = torch.cat((attn, lhs_conv),dim=1) 
@@ -213,12 +210,10 @@ class softmax_out(nn.Module):
         self.conv_2 = nn.Conv3d(out_channels, out_channels, kernel_size=1, padding=0)
 
     def forward(self, x):
-        """Output with shape [batch_size, 1, depth, height, width]."""
-        # Do NOT add normalize layer, or its values vanish.
+    
         y_conv = self.conv_2(self.conv_1(x))
         return y_conv
-        # return nn.Softmax(dim=1)(y_conv)
-        # return nn.Sigmoid()(y_conv)
+  
 
 
     
@@ -229,17 +224,14 @@ class SelfAttention(nn.Module):
     def __init__(self, num_heads, embed_dim, dropout):
         super().__init__()
         self.num_attention_heads = num_heads
-        print(self.num_attention_heads)
         self.attention_head_size = int(embed_dim / num_heads)
         self.all_head_size = self.num_attention_heads * self.attention_head_size
 
         self.query = nn.Linear(embed_dim, self.all_head_size)
-        print(self.query)
         self.key = nn.Linear(embed_dim, self.all_head_size)
         self.value = nn.Linear(embed_dim, self.all_head_size)
 
         self.out = nn.Linear(embed_dim, embed_dim)
-        print(self.out)
         self.attn_dropout = nn.Dropout(dropout)
         self.proj_dropout = nn.Dropout(dropout)
 
@@ -293,7 +285,6 @@ class Mlp(nn.Module):
 class PositionwiseFeedForward(nn.Module):
     def __init__(self, d_model=786, d_ff=1024, dropout=0.4):
         super().__init__()
-        # Torch linears have a `b` by default.
         self.w_1 = nn.Linear(d_model, d_ff)
         self.w_2 = nn.Linear(d_ff, d_model)
         self.dropout = nn.Dropout(dropout)
