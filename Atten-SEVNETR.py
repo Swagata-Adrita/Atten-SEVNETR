@@ -155,7 +155,7 @@ class deconv3d_x2(nn.Module):
         self.up = deconv3d_as_up(in_channels, out_channels, 2, 2)
         self.lhs_conv = conv3d(out_channels // 2, out_channels)
         self.conv_x2= nn.Sequential(
-            nn.Conv3d(2*out_channels, out_channels,3,1,1),    ##### 3-kernel size, 1-stride, 2-padding
+            nn.Conv3d(2*out_channels, out_channels,3,1,1),    
             nn.PReLU(),
             nn.Conv3d(out_channels, out_channels,3,1,1),
             nn.PReLU(),
